@@ -2,12 +2,13 @@ import os
 import sys
 import tempfile
 
-# Setup paths
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'mocks'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'py'))
 
 def test_file_variable_is_available_in_script():
     """Test that __file__ can be accessed in a script when it's set in globals"""
+    
+    # Setup paths
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'mocks'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'py'))
     
     # Create a temporary provider script that uses __file__
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -41,8 +42,6 @@ class TestProvider:
         instance = provider_class()
         assert instance.file_location == provider_script
         
-        print('PASS: test_file_variable_is_available_in_script')
-        
     finally:
         # Clean up temp file
         if os.path.exists(provider_script):
@@ -51,6 +50,10 @@ class TestProvider:
 
 def test_openai_style_file_usage():
     """Test that provider scripts can use __file__ like openai.py does"""
+    
+    # Setup paths
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'mocks'))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'py'))
     
     # Create a temporary provider script that uses __file__ similar to openai.py
     with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -85,8 +88,6 @@ class OpenAILikeProvider:
         expected_py_dir = os.path.dirname(os.path.dirname(provider_script))
         assert instance.py_dir == expected_py_dir
         
-        print('PASS: test_openai_style_file_usage')
-        
     finally:
         # Clean up temp file
         if os.path.exists(provider_script):
@@ -120,19 +121,23 @@ def test_file_cleanup_after_load():
     assert '__file__' not in test_globals
     assert test_globals.get('py_dir') == 'success'
     assert test_globals.get('existing_var') == 'test'
-    
-    print('PASS: test_file_cleanup_after_load')
 
 
+# Manual test runner for backward compatibility
+# These tests can be run directly with python or via pytest
 if __name__ == '__main__':
     print("Running test_file_variable_is_available_in_script...")
     test_file_variable_is_available_in_script()
+    print("PASS: test_file_variable_is_available_in_script")
     
     print("Running test_openai_style_file_usage...")
     test_openai_style_file_usage()
+    print("PASS: test_openai_style_file_usage")
     
     print("Running test_file_cleanup_after_load...")
     test_file_cleanup_after_load()
+    print("PASS: test_file_cleanup_after_load")
     
     print("\nAll tests passed!")
+
 
