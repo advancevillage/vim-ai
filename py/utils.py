@@ -367,12 +367,23 @@ def load_provider(provider_name):
         provider_path = provider_config['script_path']
         provider_class_name = provider_config['class_name']
         
+        # Save the original __file__ value if it exists
+        original_file = globals().get('__file__')
+        
         # Define __file__ in globals before loading the provider script
         # This is necessary because py3file doesn't automatically set __file__
         globals()['__file__'] = provider_path
         
-        vim.command(f"py3file {provider_path}")
-        provider_class = globals()[provider_class_name]
+        try:
+            vim.command(f"py3file {provider_path}")
+            provider_class = globals()[provider_class_name]
+        finally:
+            # Restore the original __file__ value
+            if original_file is not None:
+                globals()['__file__'] = original_file
+            elif '__file__' in globals():
+                del globals()['__file__']
+        
     except KeyError as error:
         print_debug("[load-provider] provider: {}", error)
         raise error
