@@ -366,6 +366,11 @@ def load_provider(provider_name):
         provider_config = providers[provider_name]
         provider_path = provider_config['script_path']
         provider_class_name = provider_config['class_name']
+        
+        # Define __file__ in globals before loading the provider script
+        # This is necessary because py3file doesn't automatically set __file__
+        globals()['__file__'] = provider_path
+        
         vim.command(f"py3file {provider_path}")
         provider_class = globals()[provider_class_name]
     except KeyError as error:
